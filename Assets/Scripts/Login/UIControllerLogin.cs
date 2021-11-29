@@ -54,11 +54,21 @@ public class UIControllerLogin : MonoBehaviour
     
     private void UI_OnProfile(object sender, RespondArgs args)
     {
-        if (args.method == RequestMethod.Profile && !args.error)
+        if (args.method == RequestMethod.Profile)
         {
-            Debug.Log("OK! Token correct! Main Menu");
-            SceneLoader.LoadScene(1);
+            if (!args.error)
+            {
+                Debug.Log("OK! Token correct! Main Menu");
+                SceneLoader.LoadScene(1);
+            }
+            else
+            {
+                Debug.Log("ERROR! Token expired! Main Menu");
+                ShowError("Session expired!");
+            }
+            
         }
+        
     }
 
     public void Login()

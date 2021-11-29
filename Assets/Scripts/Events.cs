@@ -15,4 +15,10 @@ namespace Polar
         Profile,
         Rating
     }
+
+    public class UserArgs : EventArgs
+    {
+        public User user;
+        public int markersCount;
+    }
 }

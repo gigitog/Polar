@@ -1,43 +1,51 @@
 ﻿using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Polar;
 using UnityEngine;
 
 public class UserController : MonoBehaviour
 {
-    public User userData { get; private set; }
     public static UserController instance;
-    public bool IsEmpty { get; private set; }
+    private bool isEmpty;
+    public event EventHandler<UserArgs> OnGetUserData;
+    private User userData;
+    
     private void Awake()
     {
-        IsEmpty = true;
+        isEmpty = true;
         SetInstance();
     }
 
-    void Start() => ServerController.instance.OnProfile += U_OnProfile;
+    private void Start() => ServerController.instance.OnProfile += U_OnProfile;
 
+    public void GetUserData()
+    {
+        if (isEmpty)
+        { // send request
+            ServerController.instance.Profile();
+        }
+        else
+        { // invoke event, which gives User's Data
+            OnGetUserData?.Invoke(this, new UserArgs(){user = userData, markersCount = GetMarkersCount()});
+        }
+    }
+    
     private void U_OnProfile(object sender, RespondArgs e)
     {
-        if (e.method == RequestMethod.Profile && !e.error)
-        {
-            var answer = JsonConvert.DeserializeObject<ProfileAnswer>(e.text);
-            userData = new User(answer);
-            IsEmpty = false;
-            Debug.Log("New profile data! " + e.text);
-        }
+        if (e.method != RequestMethod.Profile || e.error) return;
+        
+        // get answer from args and deserialize
+        var answer = JsonConvert.DeserializeObject<ProfileAnswer>(e.text);
+        userData = new User(answer);
+        isEmpty = false;
+        // invoke event because data was changed
+        OnGetUserData?.Invoke(this, new UserArgs(){user = userData, markersCount = GetMarkersCount()});
+        Debug.Log("Updated profile data! " + e.text);
     }
-    
-    public int GetMarkersCount()
-    {
-        int counter = 0;
-        for (int i = 0; i < userData.areas.Count; i++)
-        {
-            counter += userData.areas[i].markers.Count;
-        }
 
-        return counter;
-    }
-    
+    private int GetMarkersCount() => userData.areas.Sum(t => t.markers.Count);
+
     private void SetInstance()
     {
         if (instance == null)
