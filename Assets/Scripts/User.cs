@@ -4,11 +4,10 @@ namespace Polar
 {
     public class User
     {
-        public string username;
+        public List<Area> areas;
         public string email;
         public int score;
-        public List<Marker> markers;
-        public List<Area> areas;
+        public string username;
 
         public User(ProfileAnswer answer)
         {
@@ -23,10 +22,10 @@ namespace Polar
     {
         public int id;
 
-        public string type;
+        public int locationId;
         public Story story;
 
-        public int locationId;
+        public string type;
     }
 
     public class Story
@@ -35,4 +34,3 @@ namespace Polar
         public string text;
     }
 }
-

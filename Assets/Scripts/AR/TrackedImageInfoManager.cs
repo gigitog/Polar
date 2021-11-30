@@ -12,9 +12,8 @@ using UnityEngine.XR.ARFoundation;
 [RequireComponent(typeof(ARTrackedImageManager))]
 public class TrackedImageInfoManager : MonoBehaviour
 {
-    [SerializeField]
-    [Tooltip("The camera to set on the world space UI canvas for each instantiated image info.")]
-    Camera m_WorldSpaceCanvasCamera;
+    [SerializeField] [Tooltip("The camera to set on the world space UI canvas for each instantiated image info.")]
+    private Camera m_WorldSpaceCanvasCamera;
 
     /// <summary>
     /// The prefab has a world space UI canvas,
@@ -22,13 +21,13 @@ public class TrackedImageInfoManager : MonoBehaviour
     /// </summary>
     public Camera worldSpaceCanvasCamera
     {
-        get { return m_WorldSpaceCanvasCamera; }
-        set { m_WorldSpaceCanvasCamera = value; }
+        get => m_WorldSpaceCanvasCamera;
+        set => m_WorldSpaceCanvasCamera = value;
     }
 
     [SerializeField]
     [Tooltip("If an image is detected but no source texture can be found, this texture is used instead.")]
-    Texture2D m_DefaultTexture;
+    private Texture2D m_DefaultTexture;
 
     /// <summary>
     /// If an image is detected but no source texture can be found,
@@ -36,28 +35,28 @@ public class TrackedImageInfoManager : MonoBehaviour
     /// </summary>
     public Texture2D defaultTexture
     {
-        get { return m_DefaultTexture; }
-        set { m_DefaultTexture = value; }
+        get => m_DefaultTexture;
+        set => m_DefaultTexture = value;
     }
 
-    ARTrackedImageManager m_TrackedImageManager;
+    private ARTrackedImageManager m_TrackedImageManager;
 
-    void Awake()
+    private void Awake()
     {
         m_TrackedImageManager = GetComponent<ARTrackedImageManager>();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         m_TrackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         m_TrackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
-    void UpdateInfo(ARTrackedImage trackedImage)
+    private void UpdateInfo(ARTrackedImage trackedImage)
     {
         // Set canvas camera
         var canvas = trackedImage.GetComponentInChildren<Canvas>();
@@ -94,7 +93,7 @@ public class TrackedImageInfoManager : MonoBehaviour
         }
     }
 
-    void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
+    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs eventArgs)
     {
         foreach (var trackedImage in eventArgs.added)
         {

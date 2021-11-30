@@ -1,5 +1,4 @@
-﻿using System;
-using DG.Tweening;
+﻿using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,11 +7,12 @@ public class Rotation : MonoBehaviour, IDragHandler, IEndDragHandler
     [SerializeField] private Transform polytech;
     [SerializeField] private float speed;
     [SerializeField] private float timerNum;
-    private float timer = 0;
     [SerializeField] private float maxRotation = 90;
-    private bool isDragging;
     private bool isChanged;
+    private bool isDragging;
     private Rigidbody rb;
+    private float timer;
+
     private void Start()
     {
         rb = polytech.GetComponent<Rigidbody>();
@@ -22,22 +22,20 @@ public class Rotation : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         if (isDragging)
         {
-            
             if (Input.touchCount != 1) return;
 
-            Touch t = Input.GetTouch(0);
-            
-            Quaternion rotation = polytech.rotation;
-            
-            float deltaRotationX = t.deltaPosition.x * Time.fixedDeltaTime * speed;
-            float deltaRotationY = t.deltaPosition.y * Time.fixedDeltaTime * speed;
-            
+            var t = Input.GetTouch(0);
+
+            var rotation = polytech.rotation;
+
+            var deltaRotationX = t.deltaPosition.x * Time.fixedDeltaTime * speed;
+            var deltaRotationY = t.deltaPosition.y * Time.fixedDeltaTime * speed;
+
             rb.AddTorque(Vector3.right * deltaRotationY, ForceMode.VelocityChange);
             rb.AddTorque(Vector3.down * deltaRotationX, ForceMode.VelocityChange);
         }
         else
         {
-            
             if (timer >= 0)
             {
                 timer -= Time.deltaTime;
@@ -57,11 +55,10 @@ public class Rotation : MonoBehaviour, IDragHandler, IEndDragHandler
         isChanged = true;
         timer = timerNum;
     }
-    
+
     public void OnEndDrag(PointerEventData eventData)
     {
         isDragging = false;
-
     }
 
     private void SetOriginalPos()

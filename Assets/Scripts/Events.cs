@@ -4,21 +4,23 @@ namespace Polar
 {
     public class RespondArgs : EventArgs
     {
-        public string text;
-        public RequestMethod method;
         public bool error;
+        public RequestMethod method;
+        public string text;
     }
+
     public enum RequestMethod
     {
         Login,
         Register,
         Profile,
-        Rating
+        Rating,
+        Markers
     }
 
     public class UserArgs : EventArgs
     {
-        public User user;
         public int markersCount;
+        public User user;
     }
 }

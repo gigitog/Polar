@@ -1,22 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using DG.Tweening;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using static System.Math;
 
 public class Gyro : MonoBehaviour
 {
     [SerializeField] private float shiftModifier;
     [SerializeField] private float maxRotation = 20;
-    
+    private Gyroscope gyro;
+
 
     private float startingRotation;
     private Transform trns;
-    private Gyroscope gyro;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         trns = transform;
         gyro = Input.gyro;
@@ -25,26 +21,26 @@ public class Gyro : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        float deltaRotationY = (float) Round(gyro.rotationRateUnbiased.y, 1) * shiftModifier * Time.deltaTime; 
-        float deltaRotationX = (float) Round(gyro.rotationRateUnbiased.x, 1) * shiftModifier * Time.deltaTime;
-        Quaternion rotation = trns.rotation;
-        
-        float currentY = rotation.eulerAngles.y;
-        float currentX = rotation.eulerAngles.x;
-        
+        var deltaRotationY = (float) Round(gyro.rotationRateUnbiased.y, 1) * shiftModifier * Time.deltaTime;
+        var deltaRotationX = (float) Round(gyro.rotationRateUnbiased.x, 1) * shiftModifier * Time.deltaTime;
+        var rotation = trns.rotation;
+
+        var currentY = rotation.eulerAngles.y;
+        var currentX = rotation.eulerAngles.x;
+
         if (currentX > 180)
             currentX -= 360;
-        float rotateValueX = currentX + deltaRotationX;
-        float rotateX = Mathf.Clamp(rotateValueX, -maxRotation, maxRotation);
+        var rotateValueX = currentX + deltaRotationX;
+        var rotateX = Mathf.Clamp(rotateValueX, -maxRotation, maxRotation);
         if (rotateX < 0)
             rotateX += 360;
-        
+
         if (currentY > 180)
             currentY -= 360;
-        float rotateValueY = currentY + deltaRotationY;
-        float rotateY = Mathf.Clamp(rotateValueY, -maxRotation, maxRotation);
+        var rotateValueY = currentY + deltaRotationY;
+        var rotateY = Mathf.Clamp(rotateValueY, -maxRotation, maxRotation);
         if (rotateY < 0)
             rotateY += 360;
 
@@ -53,6 +49,7 @@ public class Gyro : MonoBehaviour
         //trns.rotation = Quaternion.Euler(rotateX, rotateY, rotation.eulerAngles.z);
         // CheckRotation(trns, maxRotation, maxRotation, deltaRotationX, deltaRotationY);
     }
+
     // private void CheckRotation(Transform obj, float borderX, float borderY , float deltaRotationX, float deltaRotationY)
     // {
     //     obj.Rotate(deltaRotationX, 0, 0, Space.World);
@@ -71,10 +68,7 @@ public class Gyro : MonoBehaviour
     // }
     private float NormalizeAngle(float angle)
     {
-        if (angle < 0)
-        {
-            angle = 360 + angle;
-        }
+        if (angle < 0) angle = 360 + angle;
 
         return angle;
     }

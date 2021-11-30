@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class ZonesViewer : MonoBehaviour
@@ -11,17 +9,16 @@ public class ZonesViewer : MonoBehaviour
     [SerializeField] private GameObject zoneObj;
     [SerializeField] private Mesh polyPref;
     [SerializeField] private Mesh polyPrefZoned;
-    
+
     private Image image;
-    
-    
+
+
     private bool isOn;
-    
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         image = GetComponent<Image>();
-        
     }
 
     public void Swap()
