@@ -34,8 +34,10 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void Start()
     {
+        MarkersClose();
+        RatingClose();
         FadeLoadingPanel();
-
+        
         arrowButton = arrow.GetComponent<Button>();
         isArrowOpen = true;
         SetMarkersDefaultData(MarkerController.instance.GetAreasCompressed());
@@ -56,6 +58,8 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void OnDestroy()
     {
+        ServerController.instance.OnRating -= SetRating;
+        UserController.instance.OnGetUserData -= SetUserData;
     }
 
     #region UI Buttons
@@ -130,6 +134,7 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void SetMarkersDefaultData(List<Area> areas)
     {
+        
         areaListComponents = new List<GameObject>();
         for (var i = 0; i < areas.Count; i++)
         {
@@ -139,13 +144,16 @@ public class UIControllerMainMenu : MonoBehaviour
             areaObj.GetComponent<AreaListComponent>().SetDefaultArea(areas[i]);
             areaListComponents.Add(areaObj);
         }
+        Debug.Log("Created List");
     }
 
     private void UpdateMarkersData(List<Area> userAreas, List<Area> defaultAreas)
     {
+        Debug.Log("Try to update List");
         var i = 0;
         foreach (var area in areaListComponents)
         {
+            Debug.Log($"Try to update {i}");
             area.GetComponent<AreaListComponent>().UpdateMarkers(userAreas[i], defaultAreas[i]);
             i++;
         }

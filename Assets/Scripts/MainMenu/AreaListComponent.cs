@@ -54,6 +54,7 @@ public class AreaListComponent : MonoBehaviour
     public void UpdateMarkers(Area userArea, Area defaultArea)
     {
         markersCountText.text = $"{userArea.markers.Count}/{userArea.totalMarkers}";
+        Debug.Log(markersCountText.text);
         if (userArea.markers.Count != 0 && hasZero)
         {
             Destroy(zero);
