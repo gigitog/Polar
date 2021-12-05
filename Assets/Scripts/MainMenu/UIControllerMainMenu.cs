@@ -1,41 +1,51 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using DG.Tweening;
 using Newtonsoft.Json;
 using Polar;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIControllerMainMenu : MonoBehaviour
 {
+    [Header("Header")]
     [SerializeField] private Text username;
     [SerializeField] private Text markersCount;
     [SerializeField] private Text level; //TODO LevelCOunter
     [SerializeField] private RectTransform arrow;
     [SerializeField] private RectTransform arrowBox;
     [SerializeField] private GameObject loadingPanel;
+    
+    [Header("Markers")]
     [SerializeField] private GameObject MarkersPanel;
     [SerializeField] private GameObject MarkersContent;
-
+    [SerializeField] private GameObject markerStoryPanel;
+    [SerializeField] private Text markerInfoText;
     [SerializeField] private GameObject AreaListComponentPrefab;
     private List<GameObject> areaListComponents;
-
+    
+    [Header("Rating")]
     [SerializeField] private GameObject ratingPanel;
     [SerializeField] private List<Text> usernamesTexts;
     [SerializeField] private List<Text> scoresTexts;
     [SerializeField] private Text userScoreText;
 
     private Button arrowButton;
-
     private bool isArrowOpen;
     private CanvasGroup loadingPanelGroup;
 
-
+    private List<List<int>> markersIds;
+    private bool isMarkersOpen;
+    private bool isMarkerInfoOpen;
     private void Start()
     {
         MarkersClose();
         RatingClose();
+        CloseMarkerStory();
         FadeLoadingPanel();
         
         arrowButton = arrow.GetComponent<Button>();
@@ -50,10 +60,29 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void Update()
     {
-        if (!Input.GetKeyUp(KeyCode.Escape)) return;
-        var activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer")
-            .GetStatic<AndroidJavaObject>("currentActivity");
-        activity.Call<bool>("moveTaskToBack", true);
+        if (isMarkersOpen && !isMarkerInfoOpen)
+        {
+            if (EventSystem.current.currentSelectedGameObject == null) return;
+            string buttonName = EventSystem.current.currentSelectedGameObject.name;
+            if (!buttonName.StartsWith("M_")) return;
+            
+            Debug.Log("Clicked " + buttonName);
+            var matches = Regex.Matches(buttonName, "[0-9]+");
+            if (matches.Count == 3)
+            {
+                (int, int) a = (int.Parse(matches[0].Value), int.Parse(matches[1].Value));
+                OpenMarkerStory(a);
+            }
+        }
+        
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            var activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer")
+                .GetStatic<AndroidJavaObject>("currentActivity");
+            activity.Call<bool>("moveTaskToBack", true);
+        }
+        
     }
 
     private void OnDestroy()
@@ -86,11 +115,13 @@ public class UIControllerMainMenu : MonoBehaviour
 
     public void MarkersOpen()
     {
+        isMarkersOpen = true;
         MarkersPanel.SetActive(true);
     }
 
     public void MarkersClose()
     {
+        isMarkersOpen = false;
         MarkersPanel.SetActive(false);
     }
 
@@ -107,9 +138,31 @@ public class UIControllerMainMenu : MonoBehaviour
 
     public void ScanButton()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(4); // load ar scene
+    }
+    
+    public void OpenMarkerStory((int, int) id)
+    {
+        isMarkerInfoOpen = true;
+        markerStoryPanel.SetActive(true);
+        if (id.Item1 == -1) return;
+        string text = MarkerController.instance.areas[id.Item1].markers[id.Item2].storyText;
+        markerInfoText.text = text;
     }
 
+    public void CloseMarkerStory()
+    {
+        isMarkerInfoOpen = false;
+        markerInfoText.text = "No text";
+        markerStoryPanel.SetActive(false);
+    }
+
+    public void Logout()
+    {
+        UserController.instance.Logout();
+        SceneManager.LoadScene(1); // load login scene
+    }
+    
     #endregion
 
     #region Set data on scene
@@ -134,14 +187,14 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void SetMarkersDefaultData(List<Area> areas)
     {
-        
+        markersIds = new List<List<int>>();
         areaListComponents = new List<GameObject>();
         for (var i = 0; i < areas.Count; i++)
         {
             var areaObj = Instantiate<GameObject>(AreaListComponentPrefab, Vector3.zero, Quaternion.identity,
                 MarkersContent.transform);
             var startId = (i + 1) * areas[i].totalMarkers;
-            areaObj.GetComponent<AreaListComponent>().SetDefaultArea(areas[i]);
+            areaObj.GetComponent<AreaListComponent>().SetDefaultArea(i, areas[i], markersIds);
             areaListComponents.Add(areaObj);
         }
         Debug.Log("Created List");
@@ -149,11 +202,10 @@ public class UIControllerMainMenu : MonoBehaviour
 
     private void UpdateMarkersData(List<Area> userAreas, List<Area> defaultAreas)
     {
-        Debug.Log("Try to update List");
         var i = 0;
         foreach (var area in areaListComponents)
         {
-            Debug.Log($"Try to update {i}");
+
             area.GetComponent<AreaListComponent>().UpdateMarkers(userAreas[i], defaultAreas[i]);
             i++;
         }
@@ -193,4 +245,8 @@ public class UIControllerMainMenu : MonoBehaviour
         loadingPanelGroup = loadingPanel.GetComponent<CanvasGroup>();
         loadingPanelGroup.DOFade(0f, 1.5f).SetEase(Ease.OutCubic).OnComplete(DeactivateLP);
     }
+
+    
+    
+    
 }

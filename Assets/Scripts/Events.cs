@@ -23,4 +23,9 @@ namespace Polar
         public int markersCount;
         public User user;
     }
+
+    public class ServerConnection : EventArgs
+    {
+        public bool hasConnection;
+    }
 }

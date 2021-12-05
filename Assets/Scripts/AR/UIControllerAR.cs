@@ -16,6 +16,6 @@ public class UIControllerAR : MonoBehaviour
 
     public void BackToMenu()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(3); // Load Main Menu Scene
     }
 }

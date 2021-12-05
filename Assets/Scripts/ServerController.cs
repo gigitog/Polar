@@ -9,15 +9,14 @@ using UnityEngine.Networking;
 public class ServerController : MonoBehaviour
 {
     public static ServerController instance;
-    private string token;
+    public string token;
 
-    private readonly string uriLogin = "https://polar-proj.westeurope.cloudapp.azure.com/api/user/login";
-    private readonly string uriProfile = "https://polar-proj.westeurope.cloudapp.azure.com/api/user/profile";
+    private readonly string uriLogin    = "https://polar-proj.westeurope.cloudapp.azure.com/api/user/login";
+    private readonly string uriProfile  = "https://polar-proj.westeurope.cloudapp.azure.com/api/user/profile";
+    private readonly string uriRegister = "https://polar-proj.westeurope.cloudapp.azure.com/api/user/register";
 
-    private readonly string uriRating = "https://polar-proj.westeurope.cloudapp.azure.com/api/home/rating";
-
-    // private readonly string uriRegister = "https://polar-proj.westeurope.cloudapp.azure.com/api/home/register";
-    private readonly string uriMarkers = "https://polar-proj.westeurope.cloudapp.azure.com/api/home/markers";
+    private readonly string uriRating   = "https://polar-proj.westeurope.cloudapp.azure.com/api/home/rating";
+    private readonly string uriMarkers  = "https://polar-proj.westeurope.cloudapp.azure.com/api/home/markers";
 
     private void Awake()
     {
@@ -39,9 +38,18 @@ public class ServerController : MonoBehaviour
     public event EventHandler<RespondArgs> OnRating;
     public event EventHandler<RespondArgs> OnMarkers;
 
-
     public void Register(RegisterRequest data)
     {
+        var body = JsonUtility.ToJson(data);
+        Debug.Log("send body " + body);
+
+        var request = new UnityWebRequest(uriRegister);
+        request.uploadHandler = new UploadHandlerRaw(Encoding.ASCII.GetBytes(body));
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.method = UnityWebRequest.kHttpVerbPOST;
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        StartCoroutine(SendRequest(request, RequestMethod.Register));
     }
 
     public void Login(LoginRequest data)
@@ -109,7 +117,7 @@ public class ServerController : MonoBehaviour
         else
         {
             // Show results as text
-            // Debug.Log("No errors\n" + request.downloadHandler.text);
+            Debug.Log("No errors\n" + request.downloadHandler.text);
         }
 
         InvokeEvent(this, arg);

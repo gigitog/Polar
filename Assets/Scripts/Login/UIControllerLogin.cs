@@ -3,6 +3,7 @@ using DG.Tweening;
 using Newtonsoft.Json;
 using Polar;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIControllerLogin : MonoBehaviour
@@ -16,7 +17,7 @@ public class UIControllerLogin : MonoBehaviour
     [SerializeField] private Image passImage;
     [SerializeField] private GameObject loadingPanel;
     private CanvasGroup loadingPanelGroup;
-
+    private string websiteUri = "https://polar-proj.westeurope.cloudapp.azure.com/";
 
     private void Start()
     {
@@ -25,7 +26,11 @@ public class UIControllerLogin : MonoBehaviour
         ServerController.instance.OnProfile += UI_OnProfile;
 
         password.asteriskChar = '•';
-        ServerController.instance.Profile();
+        if (UserController.instance.passedTutorial)
+            ServerController.instance.Profile();
+        else
+            loadingPanelGroup.DOFade(0f, 1f).OnComplete(DeactivateLP);
+        
     }
 
     private void OnDestroy()
@@ -51,7 +56,7 @@ public class UIControllerLogin : MonoBehaviour
         {
             Debug.Log("OK! UI LOGIN" + JsonConvert.SerializeObject(answer));
             ServerController.instance.Profile();
-            SceneLoader.LoadScene(1);
+            SceneManager.LoadScene(3); // load main menu
         }
         else
         {
@@ -75,17 +80,21 @@ public class UIControllerLogin : MonoBehaviour
         if (!args.error)
         {
             Debug.Log("OK! Token correct! Main Menu");
-            SceneLoader.LoadScene(1);
+            SceneManager.LoadScene(3); // Load main menu scene
         }
         else
         {
             loadingPanelGroup.DOFade(0f, 1f).OnComplete(DeactivateLP);
-            Debug.Log("ERROR! Token expired! Main Menu");
-            ShowError("Session expired!");
+
+            if (ServerController.instance.token.Length > 3)
+            {
+                Debug.Log("ERROR! Token expired! Main Menu");
+                ShowError("Session expired!");
+            }
         }
     }
 
-    public void Login()
+    public void LoginButton()
     {
         // UI
         if (IsFormEmpty())
@@ -103,6 +112,16 @@ public class UIControllerLogin : MonoBehaviour
         });
     }
 
+    public void RegisterButton()
+    {
+        SceneManager.LoadScene(2); // load register scene
+    }
+
+    public void ForgetButton()
+    {
+        Application.OpenURL(websiteUri);
+    }
+    
     private void DisableButton()
     {
         signInButton.interactable = false;
@@ -128,8 +147,6 @@ public class UIControllerLogin : MonoBehaviour
         return mail.text.Length == 0 || password.text.Length == 0;
     }
 
-    private void DeactivateLP()
-    {
-        loadingPanel.SetActive(false);
-    }
+    private void DeactivateLP() => loadingPanel.SetActive(false);
+    
 }

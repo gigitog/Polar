@@ -12,8 +12,8 @@ namespace Polar
 
     public class RegisterAnswer
     {
-        public List<Error> errors;
         public bool succeeded;
+        public List<Error> errors;
     }
 
     public class LoginRequest

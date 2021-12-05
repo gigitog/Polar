@@ -10,7 +10,7 @@ public class MarkerController : MonoBehaviour
     public static MarkerController instance;
     private bool isEmpty;
     public List<AreaSuper> areas;
-
+    public event EventHandler<ServerConnection> onMarkersGot;
     private void Awake()
     {
         isEmpty = true;
@@ -47,6 +47,8 @@ public class MarkerController : MonoBehaviour
         if (args.method != RequestMethod.Markers) return;
 
         var answer = JsonConvert.DeserializeObject<MarkersAnswer>(args.text);
+        
+        onMarkersGot?.Invoke(this, new ServerConnection(){hasConnection = !args.error});
 
         if (answer == null)
         {
@@ -58,6 +60,7 @@ public class MarkerController : MonoBehaviour
         {
             Debug.Log("OK! Markers\n" + JsonConvert.SerializeObject(answer));
             areas = answer.data;
+            
         }
         else
         {

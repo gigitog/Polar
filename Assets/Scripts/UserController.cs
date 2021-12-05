@@ -9,11 +9,20 @@ public class UserController : MonoBehaviour
     public static UserController instance;
     private bool isEmpty;
     private User userData;
+    private int hasUsedApp;
+    public bool passedTutorial;
 
     private void Awake()
     {
+        passedTutorial = PlayerPrefs.GetInt("hasUsedApp") == 10;
         isEmpty = true;
         SetInstance();
+    }
+
+    public void PassTutorial()
+    {
+        hasUsedApp = 10;
+        PlayerPrefs.SetInt("hasUsedApp", hasUsedApp);
     }
 
     private void Start()
@@ -36,6 +45,15 @@ public class UserController : MonoBehaviour
         else
             // invoke event, which gives User's Data
             OnGetUserData?.Invoke(this, new UserArgs {user = userData, markersCount = GetMarkersCount()});
+    }
+
+    public void Logout()
+    {
+        PlayerPrefs.DeleteKey("hasUsedApp");
+        PlayerPrefs.DeleteKey("Token");
+        userData = null;
+        isEmpty = true;
+        passedTutorial = false;
     }
 
     private void U_OnProfile(object sender, RespondArgs e)
